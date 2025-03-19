@@ -38,5 +38,23 @@ while game_on:
 
 print(log)
 
+def mask_log(log, player_idx):
+    re_log = []
+    for log_event in log:
+        if isinstance(log_event, event.Event) and not isinstance(log_event, event.ClueEvent) and log_event.player_idx == player_idx:
+            if isinstance(log_event,event.PlayEvent):
+                re_log.append(event.PlayEvent(log_event.player_idx,log_event.card_idx,log_event.card_played,(None, None)))
+            elif isinstance(log_event,event.ThrowEvent):
+                re_log.append(event.ThrowEvent(log_event.player_idx,log_event.card_idx,log_event.card_thrown,(None, None)))
+            elif isinstance(log_event,event.DrawEvent):
+                re_log.append(event.DrawEvent(log_event.player_idx,(None,None)))
+            else:
+                raise Exception("Found weird log_event!")            
+        else:
+            re_log.append(log_event)
+    return re_log
+
+
+        
 
 
