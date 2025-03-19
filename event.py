@@ -30,12 +30,11 @@ class ThrowEvent(Event):
         self.card_pulled = card_pulled
 
 class ClueEvent(Event): 
-    def __init__(self, clueing_player_idx, clued_player_idx, clue, clued_hand):
+    def __init__(self, clueing_player_idx, clued_player_idx, clue):
         super().__init__()
         self.clueing_player_idx = clueing_player_idx
         self.clued_player_idx = clued_player_idx
         self.clue = clue 
-        self.clued_hand = clued_hand
 
 
 
