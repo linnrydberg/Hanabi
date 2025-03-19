@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from action import PlayAction, ClueAction, ThrowAction
 
 class Player(ABC): 
     
@@ -7,12 +8,11 @@ class Player(ABC):
         pass
 
 
-
-
 class PlayerPlayer(Player):
 
     def __init__(self):
         pass
 
     def make_move(self, log):
-        return 0 # TODO: what is format of action
+        return PlayAction(0)
+        

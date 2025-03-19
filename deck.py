@@ -12,6 +12,9 @@ class Deck():
     
     def pull(self): 
         return self.cards.pop(0)
+    
+    def size(self):
+        return len(self.cards)
 
 
         

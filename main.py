@@ -3,6 +3,8 @@
 from player import PlayerPlayer
 from deck import Deck
 import event
+from action import PlayAction, ClueAction, ThrowAction
+from board import Board
 
 nbr_of_players = 4 
 
@@ -23,6 +25,7 @@ deck = Deck()
 
 
 # Draw initial cards
+Board()
 log = []
 for _ in range(hand_size):
     for player_idx in range(nbr_of_players):
@@ -33,10 +36,23 @@ game_on = True
 active_player_idx = 0 
 while game_on:
     action = players[active_player_idx].make_move()
+    if isinstance(action, ClueAction):
+        if Board.get_clues_left() <= 0: 
+            raise Exception("Invalid clue")
+        
+        else: 
+            log.append(event.ClueEvent(active_player_idx, action.player_idx, action.clue))
+    
+    if isinstance(action, PlayAction): 
+        log.append(event.PlayEvent(active_player_idx, action.card_idx, Board.get_card(active_player_idx, action.card_idx), deck.pull()))
+        if deck.size() == 0: 
+            rounds_left = nbr_of_players
+
     active_player_idx = (active_player_idx +1)%nbr_of_players
     
 
 print(log)
+
 
 def mask_log(log, player_idx):
     re_log = []
