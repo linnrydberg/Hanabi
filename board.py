@@ -2,8 +2,9 @@ from event import DrawEvent, PlayEvent, ThrowEvent, ClueEvent
 
 class Board:
 
-    def __init__(self, log):
+    def __init__(self, log, hand_size):
         self.log = log
+        self.hand_size = hand_size
 
 
     def add_event_to_log(self,event):
@@ -19,6 +20,10 @@ class Board:
         return clues_left
 
     def get_card(self, player_idx, card_idx):
+        return self.get_hand(player_idx)[card_idx]
+
+         
+    def get_hand(self, player_idx):
         cards = []
         for log_event in self.log:
             if log_event.player_idx != player_idx:
@@ -27,10 +32,37 @@ class Board:
                 cards.append(log_event.card)
             elif isinstance(log_event,PlayEvent) or isinstance(log_event,ThrowEvent):
                 cards.append(log_event.card_pulled)
-        return cards[-(card_idx+1)]
+
+        hand = cards[-self.hand_size:]
+        hand.reverse()
+        return hand 
+    
+
+    def get_highest_cards(self): 
+        highest_cards = {"red" : 0 , "blue": 0, "green":0, "yellow":0, "white":0}
+        for i, log_event in enumerate(self.log):
+            if isinstance(log_event, PlayEvent): 
+                col, num =log_event.card_played
+                if highest_cards[col] +1 == num:
+                    highest_cards[col] = num
+        return highest_cards
+
+    def get_lives_left(self):
+        lives_left = 3
+        highest_cards = {"red" : 0 , "blue": 0, "green":0, "yellow":0, "white":0}
+        for i, log_event in enumerate(self.log):
+            if isinstance(log_event, PlayEvent): 
+                col, num =log_event.card_played
+                if highest_cards[col] +1 == num:
+                    highest_cards[col] = num
+                else:
+                    lives_left -=1
+        return lives_left
+    
+        
         
 
-        
+    
     
 
 
