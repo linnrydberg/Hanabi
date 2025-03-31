@@ -11,7 +11,8 @@ class Deck():
         random.shuffle(self.cards)
     
     def pull(self): 
-        return self.cards.pop(0)
+        
+        return self.cards.pop(0) if len(self.cards)>0 else (None, None)
     
     def size(self):
         return len(self.cards)

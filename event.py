@@ -31,6 +31,12 @@ class ThrowEvent(Event):
         self.card_idx = card_idx
         self.card_thrown = card_thrown
         self.card_pulled = card_pulled
+    
+    def __str__(self):
+        return "Player: " + str(self.player_idx) + " threw " + str(self.card_thrown)
+    
+    def __repr__(self):
+        return self.__str__()
 
 class ClueEvent(Event): 
     def __init__(self, player_idx, clued_player_idx, clue, clued_hand):
@@ -39,6 +45,12 @@ class ClueEvent(Event):
         self.clued_player_idx = clued_player_idx
         self.clue = clue 
         self.clued_hand = clued_hand
+    
+    def __str__(self):
+        return "Player: " + str(self.player_idx) + " clues Player " +str(self.clued_player_idx) + " with clue "+ str(self.clue)
+    
+    def __repr__(self):
+        return self.__str__()
 
 
 

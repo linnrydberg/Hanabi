@@ -8,8 +8,8 @@ class Board:
 
         for log_event in self.log: 
             if log_event.player_idx > nbr_of_players: 
-                nbr_of_players = log_event.player_idx
-
+                nbr_of_players = log_event.player_idx + 1
+        self.nbr_of_players = nbr_of_players
 
         hand_sizes = {
                 2 : 5,
@@ -28,11 +28,12 @@ class Board:
         for i, log_event in enumerate(self.log):
             if isinstance(log_event,ClueEvent):
                 clues_left -= 1
-            elif isinstance(log_event,ThrowEvent) or (isinstance(log_event,PlayEvent) and log_event.card_played[1] == 5):
-                clues_left += 1
+            elif isinstance(log_event,ThrowEvent) or (isinstance(log_event,PlayEvent) and log_event.card_played[1] == 5) :
+                if clues_left < 8: 
+                    clues_left += 1
         return clues_left
 
-    def get_card(self, player_idx, card_idx):
+    def get_card(self, player_idx, card_idx): # card_idx == 0 is the newest card
         return self.get_hand(player_idx)[card_idx]
 
          
@@ -47,7 +48,7 @@ class Board:
                 cards.append(log_event.card_pulled)
 
         hand = cards[-self.hand_size:]
-        hand.reverse()
+        #hand.reverse()
         return hand 
     
 
@@ -71,6 +72,66 @@ class Board:
                 else:
                     lives_left -=1
         return lives_left
+    
+
+    def player_index_of_me(self): 
+        for i, log_event in enumerate(self.log):
+            if isinstance(log_event, DrawEvent): 
+                if log_event.card == (None, None):
+                    return log_event.player_idx
+        raise Exception("Log is not masked")
+
+            
+
+
+    
+    def get_clues(self): 
+        """
+        dict: 
+        keys: players 
+        values: hand 
+        
+        hand = dictionary 
+        keys: card_idx 
+        values: clue
+        """
+
+        my_index = self.player_index_of_me()
+        hands = [[] for _ in range(self.nbr_of_players)]
+
+          
+        for i, log_event in enumerate(self.log):
+            if isinstance(log_event, DrawEvent):
+                hands[log_event.player_idx].append((None, None))
+
+            if isinstance(log_event, PlayEvent): 
+                hands[log_event.player_idx].pop(log_event.card_idx)
+                hands[log_event.player_idx].append((None, None))
+
+            if isinstance(log_event, ThrowEvent): 
+                hands[log_event.player_idx].pop(log_event.card_idx)
+                hands[log_event.player_idx].append((None, None))
+
+            if isinstance(log_event, ClueEvent):
+                
+                for i in range(len(log_event.clued_hand)):
+                    # (R,C) == (R, None)
+                    if (log_event.clued_hand[i][0] == log_event.clue[0]) and log_event.clue[0]:
+                        hands[log_event.clued_player_idx][i] = (log_event.clue[0],hands[log_event.clued_player_idx][i][1])
+                    if (log_event.clued_hand[i][1] == log_event.clue[1]) and log_event.clue[1]:
+                        hands[log_event.clued_player_idx][i] = (hands[log_event.clued_player_idx][i][0],log_event.clue[1]) 
+        return hands
+
+
+
+
+
+
+
+
+            
+
+
     
         
         

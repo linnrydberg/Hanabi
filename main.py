@@ -1,10 +1,14 @@
 #create game (deck, antal spelare)
 #reset game 
-from player import PlayerPlayer
+from player import PlayerPlayer, NaivePlayer
 from deck import Deck
 import event
 from action import PlayAction, ClueAction, ThrowAction
 from board import Board
+
+#SETTINGS
+players = [NaivePlayer() for i in range(4)]
+
 
 def nice_print(log): 
     for log_event in log:
@@ -26,9 +30,9 @@ def mask_log(log, player_idx):
             masked_hand = []
             for card in clued_hand: 
                 (col, num) = card 
-                if col == clue: 
+                if col == clue[0]: 
                     masked_hand.append((col,None))
-                elif num == clue: 
+                elif num == clue[1]: 
                     masked_hand.append((None, num))
                 else: 
                     masked_hand.append((None, None))
@@ -38,7 +42,7 @@ def mask_log(log, player_idx):
     return re_log
 
 
-nbr_of_players = 4 
+nbr_of_players = len(players) 
 
 hand_sizes = {
     2 : 5, 
@@ -48,31 +52,29 @@ hand_sizes = {
 }
 hand_size = hand_sizes[nbr_of_players]
 
-players = []
-for _ in range(nbr_of_players): 
-    player  = PlayerPlayer()
-    players.append(player)
-
 deck = Deck()
 
 
 # Draw initial cards
-board = Board([])
+
 log = []
 for _ in range(hand_size):
     for player_idx in range(nbr_of_players):
         log.append(event.DrawEvent(player_idx, deck.pull()))
-        board.add_event_to_log(log[-1])
+        #board.add_event_to_log(log[-1])
 
-
+board = Board(log)
 game_on = True
 active_player_idx = 0 
 rounds_left = -1
 while game_on and rounds_left != 0 and board.get_lives_left() > 0:
+    print(rounds_left)
     action = players[active_player_idx].make_move(mask_log(log, active_player_idx))
-    rounds_left = rounds_left -1 
+    if rounds_left > 0: 
+        rounds_left = rounds_left -1 
+        
     if isinstance(action, ClueAction):
-        if Board.get_clues_left() <= 0: 
+        if board.get_clues_left() <= 0: 
             raise Exception("Invalid clue")
         
         else: 
@@ -82,17 +84,16 @@ while game_on and rounds_left != 0 and board.get_lives_left() > 0:
 
     elif isinstance(action, PlayAction): 
         log.append(event.PlayEvent(active_player_idx, action.card_idx, board.get_card(active_player_idx, action.card_idx), deck.pull()))
-        if deck.size() == 0: 
-            rounds_left = nbr_of_players
+       
     
     elif isinstance(action, ThrowAction): 
         log.append(event.ThrowEvent(active_player_idx, action.card_idx, board.get_card(active_player_idx, action.card_idx), deck.pull()))
-        if deck.size() == 0: 
-            rounds_left = nbr_of_players
 
-    board.add_event_to_log(log[-1])
+    if deck.size() == 0 and rounds_left == -1: 
+        rounds_left = nbr_of_players
+
+    #board.add_event_to_log(log[-1])
     active_player_idx = (active_player_idx +1)%nbr_of_players
-
 
 
 nice_print(log)
@@ -101,6 +102,7 @@ print("Game over!")
 print(board.get_highest_cards())
 print(f"Clues left: {board.get_clues_left()}")
 print(f"Lives left: {board.get_lives_left()}" )
+print(f"Decksize : {deck.size()}" )
     
 
 
