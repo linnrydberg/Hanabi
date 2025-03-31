@@ -2,9 +2,22 @@ from event import DrawEvent, PlayEvent, ThrowEvent, ClueEvent
 
 class Board:
 
-    def __init__(self, log, hand_size):
+    def __init__(self, log):
         self.log = log
-        self.hand_size = hand_size
+        nbr_of_players = 0
+
+        for log_event in self.log: 
+            if log_event.player_idx > nbr_of_players: 
+                nbr_of_players = log_event.player_idx
+
+
+        hand_sizes = {
+                2 : 5,
+                3: 5,  
+                4:4, 
+                5: 4
+            }
+        self.hand_size = hand_sizes[nbr_of_players]
 
 
     def add_event_to_log(self,event):

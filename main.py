@@ -57,7 +57,7 @@ deck = Deck()
 
 
 # Draw initial cards
-board = Board([], hand_size)
+board = Board([])
 log = []
 for _ in range(hand_size):
     for player_idx in range(nbr_of_players):
