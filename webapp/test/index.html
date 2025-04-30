@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Am I HTML already?</title>
+    <style>
+        body {
+            background-color: rgb(20, 40, 60);
+            color: rgb(240, 248, 255);
+        }
+
+        a {
+            color: rgb(255, 111, 111);
+        }
+    </style>
+    
+</head>
+
+<body>
+    <h1>Heading</h1>
+    <a id="counting_a">0</a>
+    <button id="change_button">change</button>
+    <script>
+        document.getElementById("change_button").addEventListener("click", function() {
+        document.getElementById("counting_a").textContent = parseInt(document.getElementById("counting_a").textContent) + 1;
+    });
+    </script>
+
+    <input type="text" id="name-input" placeholder="Enter your name" />
+    <button onclick="callPython()">Call Python</button>
+    <p id="result"></p>
+    
+    <script>
+    function callPython() {
+      const name = document.getElementById("name-input").value;
+      document.getElementById("result").textContent = "step1 : " + name;
+      fetch('http://127.0.0.1:5000/my-function', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name: name })
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById("result").textContent = data.message;
+      })
+      .catch(error => {
+        console.error("Error:", error);
+      });
+    }
+    </script>
+
+    <a onclick="sendMove()"></a>
+    <script>
+        function sendMove() {
+          const name = document.getElementById("name-input").value;
+          document.getElementById("result").textContent = "step1 : " + name;
+          fetch('http://127.0.0.1:5000/my-function', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ name: name })
+          })
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById("result").textContent = data.message;
+          })
+          .catch(error => {
+            console.error("Error:", error);
+          });
+        }
+        </script>
+</body>
+</html>

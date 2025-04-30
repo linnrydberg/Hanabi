@@ -23,6 +23,8 @@ class PlayEvent(Event):
 
     def __str__(self):
         return "Player: " + str(self.player_idx) + " played " + str(self.card_played)
+    def __repr__(self):
+        return self.__str__()
 
 class ThrowEvent(Event): 
     def __init__(self, player_idx, card_idx, card_thrown, card_pulled):

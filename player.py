@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from action import PlayAction, ClueAction, ThrowAction
 from board import Board
+import queue
 
 class Player(ABC): 
     
@@ -35,7 +36,7 @@ class NaivePlayer(Player):
         my_index = board.player_index_of_me()
         tutti_clues = board.get_clues()
         my_clues = tutti_clues[my_index]
-        
+      
         for i,clue in enumerate(my_clues):
             if clue[0] or clue[1]:
                 return PlayAction(i)
@@ -43,8 +44,12 @@ class NaivePlayer(Player):
         if board.get_clues_left() > 0 : 
             max_playable = 0
             max_clue = (None, None)
-            max_player = None
+            max_player = -1
+            
+            
             for i in range(board.nbr_of_players): 
+                if i == my_index:
+                    continue
                 for col in colors: 
                     current_hand = board.get_hand(i)
                     nbr_of_playable_cards = 0
@@ -85,7 +90,7 @@ class NaivePlayer(Player):
                         max_player = i
                         max_clue = (None, num)
             
-            if max_player: 
+            if max_player != -1: 
                 return ClueAction(max_player, max_clue)
         return ThrowAction(0)
     
@@ -93,6 +98,19 @@ class NaivePlayer(Player):
     
         
     
+class HumanPlayer(Player):
+    
+    def __init__(self):
+        super().__init__()
+        self.q = queue.Queue()
+        self.last_log = None
+
+    def make_move(self, log):
+        # for log_event in log:
+        #     print(log_event)
+        self.last_log = log
+        return self.q.get()
+
 
         
 

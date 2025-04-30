@@ -35,8 +35,7 @@ class Board:
 
     def get_card(self, player_idx, card_idx): # card_idx == 0 is the newest card
         return self.get_hand(player_idx)[card_idx]
-
-         
+        
     def get_hand(self, player_idx):
         cards = []
         for log_event in self.log:
@@ -51,7 +50,6 @@ class Board:
         #hand.reverse()
         return hand 
     
-
     def get_highest_cards(self): 
         highest_cards = {"red" : 0 , "blue": 0, "green":0, "yellow":0, "white":0}
         for i, log_event in enumerate(self.log):
@@ -73,7 +71,6 @@ class Board:
                     lives_left -=1
         return lives_left
     
-
     def player_index_of_me(self): 
         for i, log_event in enumerate(self.log):
             if isinstance(log_event, DrawEvent): 
@@ -81,10 +78,6 @@ class Board:
                     return log_event.player_idx
         raise Exception("Log is not masked")
 
-            
-
-
-    
     def get_clues(self): 
         """
         dict: 
@@ -122,7 +115,19 @@ class Board:
                         hands[log_event.clued_player_idx][i] = (hands[log_event.clued_player_idx][i][0],log_event.clue[1]) 
         return hands
 
+    def get_discard(self):
+        discard = []
+        for log_event in self.log:
+            if isinstance(log_event, ThrowEvent):
+                discard.append(log_event.card_thrown)
+        return discard
 
+    def get_last_discarded_card(self):
+        for i in range(len(self.log)-1,0,-1):
+            log_event = self.log[i]
+            if isinstance(log_event, ThrowEvent):
+                return log_event.card_thrown
+        return (None, None)
 
 
 
