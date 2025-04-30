@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- <style src="style.css"></style> -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Flask-SocketIO Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
+        integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
+        crossorigin="anonymous"></script>
+</head>
+<body>
+    <h1>Socket.IO Test</h1>
+    <p id="status">Connecting...</p>
+
+    <script type="text/javascript">
+        var socket = io();
+
+        socket.on('connect', function() {
+            document.getElementById('status').innerHTML = 'Connected to server!';
+            socket.emit('my event', {data: 'I\'m connected!'});
+        });
+
+        socket.on('my response', function(msg) {
+            console.log("Server says:", msg.data);
+            const p = document.createElement('p');
+            p.textContent = "Server says: " + msg.data;
+            document.body.appendChild(p);
+        });
+    </script>
+
+    <button onclick="start_clock()">start clock</button>
+    <a id="timer">-1</a>
+    <script type="text/javascript">
+        function start_clock(){
+            socket.emit('start counter', {data: 'I\'m starting clock'});
+        }
+        socket.on('clock beep', function(msg) {
+            console.log("Server says:", msg.data);
+            const p = document.getElementById('timer');
+            p.textContent = msg.time;
+        });
+    </script>
+    
+    <script type="text/javascript">
+        const cards = [["red", 5], ["white",1],["green",3]];
+        for (let i = 0; i < cards.length; i++){
+            const p = document.createElement('div');
+            p.textContent = cards[i];
+            p.style.backgroundColor = cards[i][0];
+            document.body.appendChild(p);
+        }
+    </script>
+    
+    <script type="text/javascript">
+        //document.append(createCard("red",5))
+        const p = document.createElement("p");
+        p.textContent = "HI";
+        p.style.color = "Black";
+        document.body.appendChild(p);
+    </script>
+
+    <script>
+        function createCard(color,value){
+            const card = document.createElement('div');
+            card.className = 'card'; // use your own styling or classes
+            card.style.background = "Grey";
+        
+            const cardContent = document.createElement('p');
+            cardContent.textContent = value;
+            cardContent.style.color = color;
+            cardContent.className = 'card-content';
+            card.appendChild(cardContent);
+            return card;
+        }
+        document.body.appendChild(createCard("red",5))
+        document.body.appendChild(createCard("blue",3))
+        </script>
+        
+</body>
+
+</html>
