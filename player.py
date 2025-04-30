@@ -88,6 +88,9 @@ class NaivePlayer(Player):
             if max_player: 
                 return ClueAction(max_player, max_clue)
         return ThrowAction(0)
+    
+
+    
         
     
 

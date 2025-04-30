@@ -5,6 +5,7 @@ from deck import Deck
 import event
 from action import PlayAction, ClueAction, ThrowAction
 from board import Board
+from matplotlib import pyplot as plt
 
 #SETTINGS
 players = [NaivePlayer() for i in range(4)]
@@ -52,57 +53,72 @@ hand_sizes = {
 }
 hand_size = hand_sizes[nbr_of_players]
 
-deck = Deck()
 
+print_out = False
+results = []
 
-# Draw initial cards
+for _ in range(1000): 
+    deck = Deck()
+    log = []
+    # Draw initial cards
+    for _ in range(hand_size):
+        for player_idx in range(nbr_of_players):
+            log.append(event.DrawEvent(player_idx, deck.pull()))
+            #board.add_event_to_log(log[-1])
 
-log = []
-for _ in range(hand_size):
-    for player_idx in range(nbr_of_players):
-        log.append(event.DrawEvent(player_idx, deck.pull()))
+    board = Board(log)
+    game_on = True
+    active_player_idx = 0 
+    rounds_left = -1
+    while game_on and rounds_left != 0 and board.get_lives_left() > 0:
+        action = players[active_player_idx].make_move(mask_log(log, active_player_idx))
+        if rounds_left > 0: 
+            rounds_left = rounds_left -1 
+            
+        if isinstance(action, ClueAction):
+            if board.get_clues_left() <= 0: 
+                raise Exception("Invalid clue")
+            
+            else: 
+                clued_player = action.player_idx
+                clued_hand = board.get_hand(clued_player)
+                log.append(event.ClueEvent(active_player_idx, clued_player, action.clue, clued_hand))  
+
+        elif isinstance(action, PlayAction): 
+            log.append(event.PlayEvent(active_player_idx, action.card_idx, board.get_card(active_player_idx, action.card_idx), deck.pull()))
+        
+        
+        elif isinstance(action, ThrowAction): 
+            log.append(event.ThrowEvent(active_player_idx, action.card_idx, board.get_card(active_player_idx, action.card_idx), deck.pull()))
+
+        if deck.size() == 0 and rounds_left == -1: 
+            rounds_left = nbr_of_players
+
         #board.add_event_to_log(log[-1])
+        active_player_idx = (active_player_idx +1)%nbr_of_players
 
-board = Board(log)
-game_on = True
-active_player_idx = 0 
-rounds_left = -1
-while game_on and rounds_left != 0 and board.get_lives_left() > 0:
-    print(rounds_left)
-    action = players[active_player_idx].make_move(mask_log(log, active_player_idx))
-    if rounds_left > 0: 
-        rounds_left = rounds_left -1 
-        
-    if isinstance(action, ClueAction):
-        if board.get_clues_left() <= 0: 
-            raise Exception("Invalid clue")
-        
-        else: 
-            clued_player = action.player_idx
-            clued_hand = board.get_hand(clued_player)
-            log.append(event.ClueEvent(active_player_idx, clued_player, action.clue, clued_hand))  
-
-    elif isinstance(action, PlayAction): 
-        log.append(event.PlayEvent(active_player_idx, action.card_idx, board.get_card(active_player_idx, action.card_idx), deck.pull()))
-       
+    if print_out: 
+        nice_print(log)
+        print("__________________________")
+        print("Game over!")
+        print(board.get_highest_cards())
+        print(f"Clues left: {board.get_clues_left()}")
+        print(f"Lives left: {board.get_lives_left()}" )
+        print(f"Decksize : {deck.size()}" )
     
-    elif isinstance(action, ThrowAction): 
-        log.append(event.ThrowEvent(active_player_idx, action.card_idx, board.get_card(active_player_idx, action.card_idx), deck.pull()))
+    sum = 0
+    for key in board.get_highest_cards(): 
+        sum += board.get_highest_cards()[key]
+    results.append(sum)
 
-    if deck.size() == 0 and rounds_left == -1: 
-        rounds_left = nbr_of_players
+tot = 0 
+for item in results:
+    tot += item
 
-    #board.add_event_to_log(log[-1])
-    active_player_idx = (active_player_idx +1)%nbr_of_players
+print(tot/len(results))
+plt.hist(results)
+    
 
-
-nice_print(log)
-print("__________________________")
-print("Game over!")
-print(board.get_highest_cards())
-print(f"Clues left: {board.get_clues_left()}")
-print(f"Lives left: {board.get_lives_left()}" )
-print(f"Decksize : {deck.size()}" )
     
 
 
